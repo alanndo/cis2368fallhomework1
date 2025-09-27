@@ -1,0 +1,91 @@
+import mysql.connector
+import creds
+from mysql.connector import Error
+from sql import create_connection
+from sql import execute_query
+from sql import execute_read_query
+
+myCreds = creds.Creds()
+conn = create_connection(myCreds.conString, myCreds.userName, myCreds.password, myCreds.dbName)
+
+#create table
+create_shoppinglist = """
+CREATE TABLE IF NOT EXISTS shoppinglist(
+id INT AUTO_INCREMENT,
+quantity INT,
+date_added DATETIME,
+item_description VARCHAR(255) NOT NULL, 
+PRIMARY KEY (id)
+)"""
+
+execute_query(conn, create_shoppinglist)
+
+# hard code our records
+add_shoppinglist_query = """
+INSERT INTO shoppinglist (quantity, date_added,item_description)
+VALUES
+    ('1', '12/01/2001', 'toy'),
+    ('3', '03/14/2005', 'notebook'),
+    ('5', '07/22/2010', 'bicycle'),
+    ('2', '11/09/2003', 'pencil case'),
+    ('4', '01/01/2020', 'backpack'),
+    ('6', '06/15/2018', 'helmet'),
+    ('2', '09/30/2011', 'water bottle'),
+    ('8', '10/25/2006', 'skateboard'),
+    ('1', '02/17/2023', 'book'),
+    ('7', '08/08/2012', 'calculator'),
+    ('3', '05/05/2008', 'basketball'),
+    ('9', '04/18/2015', 'headphones'),
+    ('4', '12/31/2019', 'board game'),
+    ('2', '07/04/2000', 'crayons'),
+    ('6', '09/11/2021', 'laptop bag')
+""" 
+execute_query(conn, add_shoppinglist_query)
+
+#menu
+userInt = input("""
+MENU
+a-add item
+d-remove item
+r1- ouput all items in alphabetical order
+r2- output all items by quantity
+q-quit
+""")
+
+# add something in the function
+if userInt == 'a':
+    quantityNew = input("Add a Quantity")
+    date_addedNew = input("Add a date")
+    item_descriptionNew = input("Add a item description")
+    query = "INSERT INTO shoppinglist(quantity, date_added, item_description) VALUES (%s, '%s', %s)" % (quantityNew, date_addedNew, item_descriptionNew)
+    execute_query(conn, query)
+# function to delete
+elif userInt == 'd':
+    userIntID = input("Which id to delete?")
+    delete_statement = "DELETE FROM shoppinglist WHERE id = %s" % (userIntID)
+    execute_query(conn, delete_statement)
+
+# ascedning order 
+elif userInt == 'r1':
+    query = """
+    SELECT quantity, date_added, item_description
+    FROM shoppinglist
+    ORDER BY quantity, date_added, item_description ASC;
+"""
+    execute_query(conn,query)
+
+
+# descending order
+elif userInt == 'r2':
+    query = """
+    SELECT quantity, date_added, item_description
+    FROM shoppinglist
+    ORDER BY quantity, date_added, item_description DESC;
+"""
+    execute_query(conn,query)
+elif userInt == "q":
+    print("Quit")
+
+
+
+
